@@ -17,14 +17,18 @@ class Day1 {
 
   public static void main(String[] args) {
     DayUtils utils = new DayUtils(1, 1, DayUtils.FetchOption.FETCH_IF_EMPTY);
-    utils.startTimer();
-    Dial dial = new Dial(50, 0);
     List<Turn> turns = processInput(utils.getListInput());
-//    solve(turns, dial);
+    utils.startTimer();
+    NormalDial dial = new NormalDial(50, 0);
+    solve(turns, dial);
+    utils.endTimer();
+    utils.printAnswer(dial.getCounter());
+
+    utils.startTimer();
     PreciseDial preciseDial = new PreciseDial(50, 0);
-    System.out.println(preciseDial);
     solve(turns, preciseDial);
     utils.endTimer();
+    utils.printAnswer(preciseDial.getCounter());
   }
 
   private static List<Turn> processInput(List<String> input)
@@ -44,75 +48,76 @@ class Day1 {
   private static void solve(List<Turn> turns, Dial dial) {
 
     for (Turn e : turns) {
-      System.out.println(dial);
+//      System.out.println(dial);
       if (e.direction().equals(RIGHT))
         dial.turnRight(e);
       else
         dial.turnLeft(e);
-//      if (dial.position.equals(0))
-//        dial.increment();
-      System.out.println(e);
-      System.out.println(dial);
-      System.out.println();
+//      System.out.println(e);
+//      System.out.println(dial);
+//      System.out.println();
     }
-    System.out.printf("Counter: %s%n", dial.getCounter());
   }
 
+  interface Dial {
+    void turnRight(Turn turn);
+    void turnLeft(Turn turn);
+  }
 
-  static class PreciseDial extends Dial{
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  static class PreciseDial implements Dial {
 
-    public PreciseDial(Integer position, Integer counter) {
-      this.counter = counter;
-      this.position = position;
-    }
+    private Integer position;
+    private Integer counter;
 
-    void turnRight(Turn turn) {
+    public void turnRight(Turn turn) {
       position = position + turn.rotations();
       if (position > 99) {
         counter += position / 100;
         position = position % 100;
       } else if (position == 0)
-        increment();
+        counter++;
     }
 
-    void turnLeft(Turn turn) {
+    public void turnLeft(Turn turn) {
       int tmp = position;
       position = position - (turn.rotations());
       if (position < 0) {
         if(tmp != 0)
-          increment();
+          counter++;
         position = -position;
         counter += position / 100;
         position = 100 - (position % 100);
         if (position == 100)
           position = 0;
       } else if (position == 0)
-        increment();
+        counter++;
     }
   }
 
   @Data
   @NoArgsConstructor
   @AllArgsConstructor
-  static class Dial {
-    Integer position;
-    Integer counter;
+  static class NormalDial implements Dial {
+    private Integer position;
+    private Integer counter;
 
-    void increment()
-    {
-      counter++;
-    }
-
-    void turnRight(Turn turn) {
+    public void turnRight(Turn turn) {
       position = position + turn.rotations();
       if (position > 99)
         position = position % 100;
+      if (position == 0)
+        counter++;
     }
 
-    void turnLeft(Turn turn) {
+    public void turnLeft(Turn turn) {
       position = position - (turn.rotations() % 100);
       if (position < 0)
         position = 100 + (position);
+      if (position == 0)
+        counter++;
     }
   }
 
