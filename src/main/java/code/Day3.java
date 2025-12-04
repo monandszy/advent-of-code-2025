@@ -12,44 +12,37 @@ class Day3 {
 
     List<Bank> banks = initInput(utils.getListInput());
     utils.startTimer();
-    BigInteger sum = solve(banks);
+    BigInteger sum = solve(banks, 2);
     utils.endTimer();
     utils.printAnswer(sum);
 
     utils.startTimer();
-
+    BigInteger sum2 = solve(banks, 12);
     utils.endTimer();
-//    utils.printAnswer(sum2);
+    utils.printAnswer(sum2);
   }
 
-  private static BigInteger solve(List<Bank> banks) {
+  private static BigInteger solve(List<Bank> banks, int choices) {
     BigInteger sum = BigInteger.ZERO;
-
-    for (Bank bank : banks)
-    {
-      Integer max1 = 1;
-      Integer max2 = 1;
+    for (Bank bank : banks) {
+      BigInteger voltage = BigInteger.ZERO;
+//      System.out.println(bank);
       int backup = 0;
-      int size = bank.cells().size();
-      System.out.println(bank);
-      for (int i = 0; i < size - 1; i++)
+      for(int c = choices; c > 0; c--)
       {
-        Integer cell = bank.cells().get(i);
-        if (cell > max1) {
-          max1 = cell;
-          backup = i;
+        int max = 0;
+        int size = bank.cells().size();
+        for (int i = backup; i < size - c + 1; i++) {
+          int cell = bank.cells().get(i);
+          if (cell > max) {
+            max = cell;
+            backup = i + 1;
+          }
         }
+        voltage = voltage.multiply(BigInteger.TEN).add(BigInteger.valueOf(max));
       }
-      for (int i = backup + 1; i < size; i++)
-      {
-        Integer cell = bank.cells().get(i);
-        if (cell > max2) {
-          max2 = cell;
-        }
-      }
-      BigInteger joltage = BigInteger.valueOf(max1 * 10 + max2);
-      System.out.println(joltage);
-      sum = sum.add(joltage);
+      System.out.println(voltage);
+      sum = sum.add(voltage);
     }
     return sum;
   }
